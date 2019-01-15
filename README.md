@@ -34,7 +34,7 @@ Click on the "Select Ouput File" button and enter a failename of where to save t
 
 ### Run the comparison
 Click on the "Start Comparison" button to begin the process. Depending on the file size, this may take a few minutes. When the process is complete, a new window will pop up to let you know the process was successful.
-![](img/07_complete.PNG?raw=true){:height="50%" width="50%"
+![](img/07_complete.PNG?raw=true){:height="50%" width="50%"}
 
 ## Results
 
