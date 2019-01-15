@@ -11,6 +11,46 @@ import (
     "log"
 )
 
+var (
+    mainwin   *ui.Window
+    fileNames []string
+    indexcol  int = 6
+)
+
+func which(s []string, tgt string) (bool, int) {
+    for i := 0; i < len(s); i++ {
+        if s[i] == tgt {
+            return true, i
+        }
+    }
+    return false, 0
+}
+
+func getColNames(xlfile string) []string {
+    mySlice, err := xlsx.FileToSlice(xlfile)
+    if err != nil {
+        log.Fatalf("Unable to read file: %s\n", err)
+    }
+    ncol := len(mySlice[0][0])
+    var colNames []string
+    for i := 1; i < ncol; i++ {
+        colNames = append(colNames, (mySlice[0][0][i]))
+    }
+    return colNames
+}
+
+func updateColList(box *ui.Combobox, s []string) {
+    for _, col := range s {
+        box.Append(col)
+    }
+    ok, ind := which(s, "Barcode")
+    if ok {
+        box.SetSelected(ind)
+    } else {
+        box.SetSelected(0)
+    }
+}
+
 func buildPairs(xlfile string, indexcol int) map[string]uint32 {
     // open the xlsx file
     mySlice, err := xlsx.FileToSlice(xlfile)
@@ -132,7 +172,7 @@ func writeToFile(m map[string]string, outfile string) {
 
     namerow := sheet.AddRow()
     cell := namerow.AddCell()
-    cell.Value = "barcode"
+    cell.Value = "key"
     cell = namerow.AddCell()
     cell.Value = "difference"
 
@@ -151,9 +191,8 @@ func writeToFile(m map[string]string, outfile string) {
 }
 
 // knit it all together
-func doTheThing(file1, file2, outfile string) bool {
+func doTheThing(file1, file2, outfile string, indexcol int) bool {
 
-    indexcol := 6
     m1 := buildPairs(file1, indexcol)
     m2 := buildPairs(file2, indexcol)
 
@@ -161,47 +200,57 @@ func doTheThing(file1, file2, outfile string) bool {
     return true
 }
 
-// build the iterface
-func setupUI() {
-    mainwin := ui.NewWindow("File Select", 640, 480, true)
-    mainwin.OnClosing(func(*ui.Window) bool {
-        ui.Quit()
-        return true
-    })
-    ui.OnShouldQuit(func() bool {
-        mainwin.Destroy()
-        return true
-    })
+// progress bar update
+func withProgress(pb *ui.ProgressBar, entry1, entry2, entry3 *ui.Entry, indexcol int) bool {
+    pb.SetValue(-1)
+    outval := false
+    if (entry1.Text() == "") || (entry2.Text() == "") || (entry3.Text() == "") {
+        ui.MsgBoxError(mainwin, "File Select Error", "Please select input and output files first.")
+        return outval
+    }
+    outval = doTheThing(entry1.Text(), entry2.Text(), entry3.Text(), indexcol)
+    return outval
 
+}
+
+// input tab
+func makeControlsPage() ui.Control {
+    fileCols := ui.NewCombobox()
     hbox := ui.NewHorizontalBox()
     hbox.SetPadded(true)
-    mainwin.SetChild(hbox)
-    mainwin.SetMargined(true)
 
+    vbox := ui.NewVerticalBox()
+    vbox.SetPadded(true)
+    hbox.Append(vbox, true)
+
+    // input grid
     grid := ui.NewGrid()
     grid.SetPadded(true)
-    hbox.Append(grid, false)
+    vbox.Append(grid, false)
 
-    // Get File 1
-    button := ui.NewButton("Open File")
-    entry := ui.NewEntry()
-    entry.SetReadOnly(true)
+    // file 1
+    button := ui.NewButton("Select File 1")
+    entry1 := ui.NewEntry()
+    entry1.SetReadOnly(true)
     button.OnClicked(func(*ui.Button) {
         filename1 := ui.OpenFile(mainwin)
         if filename1 == "" {
             filename1 = ""
         }
-        entry.SetText(filename1)
+        entry1.SetText(filename1)
+        colnames := getColNames(filename1)
+        updateColList(fileCols, colnames)
     })
+
     grid.Append(button,
         0, 0, 1, 1,
         false, ui.AlignFill, false, ui.AlignFill)
-    grid.Append(entry,
+    grid.Append(entry1,
         1, 0, 1, 1,
         true, ui.AlignFill, false, ui.AlignFill)
 
-    // Get File 2
-    button = ui.NewButton("Open File")
+    // file 2
+    button = ui.NewButton("Select File 2")
     entry2 := ui.NewEntry()
     entry2.SetReadOnly(true)
     button.OnClicked(func(*ui.Button) {
@@ -210,7 +259,10 @@ func setupUI() {
             filename2 = ""
         }
         entry2.SetText(filename2)
+        colnames := getColNames(filename2)
+        updateColList(fileCols, colnames)
     })
+
     grid.Append(button,
         0, 1, 1, 1,
         false, ui.AlignFill, false, ui.AlignFill)
@@ -218,8 +270,22 @@ func setupUI() {
         1, 1, 1, 1,
         true, ui.AlignFill, false, ui.AlignFill)
 
-    // Get outfile
-    button = ui.NewButton("Save File")
+    // column select
+    form := ui.NewForm()
+    form.SetPadded(true)
+    vbox.Append(form, false)
+    form.Append("Select Column to Compare by:", fileCols, true)
+    fileCols.OnSelected(func(*ui.Combobox) {
+        indexcol = fileCols.Selected() + 1
+    })
+    vbox.Append(ui.NewHorizontalSeparator(), false)
+
+    // output grid
+    grid = ui.NewGrid()
+    grid.SetPadded(true)
+    vbox.Append(grid, false)
+
+    button = ui.NewButton("Select Output File Location")
     entry3 := ui.NewEntry()
     entry3.SetReadOnly(true)
     button.OnClicked(func(*ui.Button) {
@@ -229,26 +295,26 @@ func setupUI() {
         }
         entry3.SetText(filename3)
     })
+
     grid.Append(button,
-        0, 2, 1, 1,
+        0, 0, 1, 1,
         false, ui.AlignFill, false, ui.AlignFill)
     grid.Append(entry3,
-        1, 2, 1, 1,
+        1, 0, 1, 1,
         true, ui.AlignFill, false, ui.AlignFill)
 
-    // Run the application
-    button = ui.NewButton("Compare Files")
+    button = ui.NewButton("Start Comparison")
     pb := ui.NewProgressBar()
+
     button.OnClicked(func(*ui.Button) {
-        if (entry.Text() == "") || (entry2.Text() == "") || (entry3.Text() == "") {
+        pb.SetValue(-1)
+        outval := false
+        if (entry1.Text() == "") || (entry2.Text() == "") || (entry3.Text() == "") {
             ui.MsgBoxError(mainwin, "File Select Error", "Please select input and output files first.")
             return
         }
-        ui.QueueMain(func() {
-            pb.SetValue(-1)
-        })
-        comp := doTheThing(entry.Text(), entry2.Text(), entry3.Text())
-        if comp == true {
+        outval = doTheThing(entry1.Text(), entry2.Text(), entry3.Text(), indexcol)
+        if outval == true {
             pb.SetValue(100)
             msg := "Complete! Wrote result to " + entry3.Text()
             ui.MsgBox(mainwin, "Complete!", msg)
@@ -259,14 +325,42 @@ func setupUI() {
     })
 
     grid.Append(button,
-        0, 3, 1, 1,
-        true, ui.AlignFill, false, ui.AlignFill)
+        0, 1, 1, 1,
+        false, ui.AlignFill, false, ui.AlignFill)
+
+    // progress grid
+    grid = ui.NewGrid()
+    grid.SetPadded(true)
+    vbox.Append(grid, true)
 
     grid.Append(pb,
-        0, 4, 1, 1,
+        0, 0, 1, 1,
         true, ui.AlignFill, false, ui.AlignFill)
 
+    return hbox
+}
+
+// build the iterface
+func setupUI() {
+    mainwin = ui.NewWindow("Excel File Comparison Tool", 640, 480, true)
+    mainwin.OnClosing(func(*ui.Window) bool {
+        ui.Quit()
+        return true
+    })
+    ui.OnShouldQuit(func() bool {
+        mainwin.Destroy()
+        return true
+    })
+
+    tab := ui.NewTab()
+    mainwin.SetChild(tab)
+    mainwin.SetMargined(true)
+
+    tab.Append("Controls", makeControlsPage())
+    tab.SetMargined(0, true)
+
     mainwin.Show()
+
 }
 
 func main() {

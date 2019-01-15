@@ -3,7 +3,7 @@
 *.com
 *.class
 *.dll
-*.exe
+# *.exe
 *.o
 *.so
 
@@ -41,3 +41,5 @@ Thumbs.db
 data/
 build/
 dist/
+test/
+bak/
