@@ -8,7 +8,7 @@
 
 current release: [diffTool v0.5.0](https://github.com/burch-cm/difftool/releases/download/v0.5.0/diffTool.exe)
 
-On a windows machine, simply download the diffTool.exe from the "current release" link above and place it in any folder to which you have write access. On machines with administrative security policies, you may get a warning that Windows Defender has prevented an unrecognized app from running, which will prevent diffTool from working. Click "more info" anf then "run anyway" in order to run the .exe file.  
+On a windows machine, simply download the diffTool.exe from the "current release" link above and place it in any folder to which you have write access. On machines with administrative security policies, you may get a warning that Windows Defender has prevented an unrecognized app from running, which will prevent diffTool from working. Click "more info" and then "run anyway" in order to run the .exe file.  
 ![](img/windows_warning.png){:height="50%" width="50%"}  
 
 ### Open the directory and run the file  
