@@ -1,7 +1,6 @@
 # diffTool
 
-## 
-diffTool is a GUI application built in [Go](https://golang.org). It finds the diff status of each keyed line between two Excel files by key and then writes the differences to a specificed file.
+**diffTool** is a GUI application built in [Go](https://golang.org). It finds the diff status of each keyed line between two Excel files by key and then writes the differences to a specificed file.
 
 
 ## Installation
@@ -37,7 +36,7 @@ Click on the "Select Ouput File" button and enter a failename of where to save t
 
 ### Run the comparison
 Click on the "Start Comparison" button to begin the process. Depending on the file size, this may take a few minutes. When the process is complete, a new window will pop up to let you know the process was successful.
-![](img/07_complete.PNG?raw=true){:height="50%" width="50%"}
+![](img/07_complete.PNG?raw=true){:height="50%" width="50%"}  
 
 ## Results
 
