@@ -11,9 +11,9 @@ go build diffTool.go
 ```
 from within the repo folder.
 
-## Interface  
+## Use  
 
-
+Please read the instructions [here](https://burch-cm.github.io/difftool/)
 
 This will produce an Excel .xlsx file with two columns - key and status. Key is the key value of the keyed column used for the set analysis between files, and status takes one of four values: new, removed, changed, same
 
