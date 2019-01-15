@@ -2,7 +2,6 @@
 
 **diffTool** is a GUI application built in [Go](https://golang.org). It finds the diff status of each keyed line between two Excel files by key and then writes the differences to a specificed file.  
 
-
 ## Installation
 Download the latest version from the github repo:
 [https://github.com/burch-cm/difftool](https://github.com/burch-cm/difftool)
@@ -13,7 +12,11 @@ go build diffTool.go
 ```
 from within the repo folder.
 
-## Instructions  
+## Instructions for Windows
+
+### Download diffTool.exe  
+On a windows machine, simply download the diffTool.exe and place it in any folder to which you have write access. On machines with administrative security policies, you may get a warning that Windows Defender has prevented an unrecognized app from running, which will prevent diffTool from working. Click "more info" anf then "run anyway" in order to run the .exe file.  
+![](img/windows_warning.png){:height="50%" width="50%"}  
 
 ### Open the directory and run the file  
 Open the directory where you downloaded or build diffTool.exe. Either run diffTool.exe from the commmand line or double click on the program name from the file explorer.  
@@ -44,3 +47,6 @@ This will produce an Excel .xlsx file with two columns - key and status. Key is 
 
 ## How it works  
 Under the hood, diffTool reads each file into a Go map using the selected key column and a hash of the line containing that key. Each set of keys is compared for differences and intersections, and the intersectional keys have their line hash values compared to check for differences. The results are paired back to the keys in a key: value map, and then written to a specified file.
+
+## Non-windows systems  
+The current release is compiled for Windows 10, but can be recompiled for any go-capable OS. Just clone the repo and run ```go built difftool.go``` to compile on your system.
