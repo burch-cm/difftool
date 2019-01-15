@@ -5,6 +5,9 @@ diffTool is a GUI application built in [Go](https://golang.org). It finds the di
 
 
 ## Installation
+Download the latest version from the github repo:
+[https://github.com/burch-cm/difftool](https://github.com/burch-cm/difftool)
+
 To run diffTool on a Windows-based system, download a copy of diffTool.exe and run it from your computer. To build the diffTool on any go-capable system, clone the repo and then run 
 ``` 
 go build diffTool.go
