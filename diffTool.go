@@ -120,7 +120,7 @@ func conv2str(t interface{}) string {
 compares two maps by key value, and then checks to see if the overlapping keys
 are mapped to equivalent hash values. determines if a key appears in left, right, or both maps.
 */
-func compareHash(map1, map2 map[string]uint32) map[string]string {
+/*func compareHash(map1, map2 map[string]uint32) map[string]string {
     m1_key := mapset.NewSet()
     m2_key := mapset.NewSet()
 
@@ -154,10 +154,65 @@ func compareHash(map1, map2 map[string]uint32) map[string]string {
     }
 
     return comparison
+}*/
+
+type HashComp struct {
+    keys      map[string]string
+    same      []string
+    added     []string
+    removed   []string
+    different []string
+}
+
+func compareHash(map1, map2 map[string]uint32) map[string]string {
+    m1_key := mapset.NewSet()
+    m2_key := mapset.NewSet()
+    comparison := make(map[string]string)
+    same, diff, added, removed := []string{}
+
+    // iterate over key values
+    for key := range map1 {
+        m1_key.Add(key)
+    }
+    for key := range map2 {
+        m2_key.Add(key)
+    }
+    // deleted keys - left difference
+    left_only := m1_key.Difference(m2_key).ToSlice()
+    for _, k := range left_only {
+        comparison[conv2str(k)] = "removed"
+        removed = append(removed, conv2str(k))
+    }
+    // new keys - right difference
+    right_only := m2_key.Difference(m1_key).ToSlice()
+    for _, k := range right_only {
+        comparison[conv2str(k)] = "added"
+        added = append(added, conv2str(k))
+    }
+    // shared keys - intersection of keys
+    same_keys := m1_key.Intersect(m2_key).ToSlice()
+    for _, k := range same_keys {
+        if map1[conv2str(k)] == map2[conv2str(k)] {
+            comparison[conv2str(k)] = "same"
+            same = append(same, conv2str(k))
+        } else {
+            comparison[conv2str(k)] = "different"
+            different = append(different, k)
+        }
+    }
+    out := HashComp{
+        keys:      comparison,
+        same:      same,
+        different: different,
+        added:     added,
+        removed:   removed,
+    }
+
+    return out
 }
 
 // write to a specified file
-func writeToFile(m map[string]string, outfile string) {
+/*func writeToFile(m map[string]string, outfile string) {
     var file *xlsx.File
     var sheet *xlsx.Sheet
     // var row *xlsx.Row
@@ -189,14 +244,50 @@ func writeToFile(m map[string]string, outfile string) {
         fmt.Printf(err.Error())
     }
 }
+*/
+func writeToFile(c HashComp, outfile string) {
+    var file *xlsx.File
+    var sheet *xlsx.Sheet
+    var err error
+
+    file = xlsx.NewFile()
+    sheet, err = file.AddSheet("Sheet1")
+    if err != nil {
+        fmt.Printf(err.Error())
+    }
+
+    namerow := sheet.AddRow()
+    cell := namerow.AddCell()
+    cell.Value = "key"
+    cell = namerow.AddCell()
+    cell.Value = "difference"
+
+    /*    for k, v := range c {
+              row1 := sheet.AddRow()
+              cell1 := row1.AddCell()
+              cell1.Value = k
+              cell2 := row1.AddCell()
+              cell2.Value = v
+          }
+    */
+    for _, d := range c.different {
+        row1 := sheet.AddRow()
+
+    }
+
+    err = file.Save(outfile)
+    if err != nil {
+        fmt.Printf(err.Error())
+    }
+}
 
 // knit it all together
 func doTheThing(file1, file2, outfile string, indexcol int) bool {
 
     m1 := buildPairs(file1, indexcol)
     m2 := buildPairs(file2, indexcol)
+    hashcomp := compareHash(m1, m2)
 
-    writeToFile(compareHash(m1, m2), outfile)
     return true
 }
 
