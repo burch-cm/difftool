@@ -6,7 +6,7 @@
 
 ### Download diffTool.exe  
 
-current release: [diffTool v0.5.0](https://github.com/burch-cm/difftool/releases/download/v0.5.0/diffTool.exe)
+current release: [diffTool v0.6.0](https://github.com/burch-cm/difftool/releases/download/v0.6.0/difftool.exe)
 
 On a windows machine, simply download the diffTool.exe from the "current release" link above and place it in any folder to which you have write access. On machines with administrative security policies, you may get a warning that Windows Defender has prevented an unrecognized app from running, which will prevent diffTool from working. Click "more info" and then "run anyway" in order to run the .exe file.  
 ![](img/windows_warning.png){:height="75%" width="75%"}  
@@ -42,4 +42,4 @@ This will produce an Excel .xlsx file with two columns - key and status. Key is 
 Under the hood, diffTool reads each file into a Go map using the selected key column and a hash of the line containing that key. Each set of keys is compared for differences and intersections, and the intersectional keys have their line hash values compared to check for differences. The results are paired back to the keys in a key: value map, and then written to a specified file.
 
 ## Non-windows systems  
-The current release is compiled for Windows 10, but can be recompiled for any go-capable OS. Just clone the repo and run ```go built difftool.go``` to compile on your system.
+The current release is compiled for Windows 10, but can be recompiled for any go-capable OS. Just clone the repo and run ```go build``` to compile on your system.
