@@ -176,6 +176,9 @@ func (diff diffMap) writeFile(f string) bool {
 	}
 
 	namerow := sheet.AddRow()
+	cell := namerow.AddCell()
+	cell.Value = "Row Source"
+	cell.SetStyle(style)
 	for _, v := range diff["colnames"]["colnames"] {
 		cell := namerow.AddCell()
 		cell.Value = v
@@ -185,12 +188,18 @@ func (diff diffMap) writeFile(f string) bool {
 	for _, v := range diff {
 		if v["type"][0] == "different" {
 			oldrow := sheet.AddRow()
+			cell := oldrow.AddCell()
+			cell.Value = "file 1"
+			cell.SetStyle(style)
 			for _, j := range v["old"] {
 				cell := oldrow.AddCell()
 				cell.Value = j
 				cell.SetStyle(style)
 			}
 			newrow := sheet.AddRow()
+			cell = newrow.AddCell()
+			cell.Value = "file 2"
+			cell.SetStyle(style)
 			for _, j := range v["new"] {
 				cell := newrow.AddCell()
 				cell.Value = j

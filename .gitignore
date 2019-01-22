@@ -43,3 +43,4 @@ build/
 dist/
 test/
 bak/
+*.exe
