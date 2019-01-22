@@ -162,7 +162,7 @@ func makeControlsPage() ui.Control {
 
 // build the iterface
 func setupUI() {
-	mainwin = ui.NewWindow("diffTool v0.2.1", 640, 480, true)
+	mainwin = ui.NewWindow("diffTool v0.6.0", 640, 480, true)
 	mainwin.OnClosing(func(*ui.Window) bool {
 		ui.Quit()
 		return true
