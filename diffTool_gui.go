@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/andlabs/ui"
 	_ "github.com/andlabs/ui/winmanifest"
+	"sync"
 )
 
 var (
@@ -33,6 +34,8 @@ func updateColList(box *ui.Combobox, s []string) {
 }
 
 func makeControlsPage() ui.Control {
+	var wg sync.WaitGroup
+
 	fileCols := ui.NewCombobox()
 	hbox := ui.NewHorizontalBox()
 	hbox.SetPadded(true)
@@ -55,7 +58,9 @@ func makeControlsPage() ui.Control {
 		if filename1 == "" {
 			filename1 = ""
 		}
-		entry1.SetText(filename1)
+		wg.Add(1)
+		go func() { entry1.SetText(filename1) }()
+		defer wg.Done()
 		colnames := getColNames(filename1)
 		updateColList(fileCols, colnames)
 	})
@@ -125,7 +130,8 @@ func makeControlsPage() ui.Control {
 	pb := ui.NewProgressBar()
 
 	button.OnClicked(func(*ui.Button) {
-		go pb.SetValue(-1)
+		wg.Add(1)
+		go func() { pb.SetValue(-1) }()
 		outval := false
 		if (entry1.Text() == "") || (entry2.Text() == "") || (entry3.Text() == "") {
 			ui.MsgBoxError(mainwin, "File Select Error", "Please select input and output files first.")
@@ -133,7 +139,10 @@ func makeControlsPage() ui.Control {
 		}
 		fileDiff, _ := Difference(entry1.Text(), entry2.Text(), indexcol)
 		outval = fileDiff.writeFile(entry3.Text())
-		go pb.SetValue(100)
+		wg.Done()
+		wg.Add(1)
+		go func() { pb.SetValue(100) }()
+		defer wg.Done()
 		if outval == true {
 
 			msg := "Complete! Wrote result to " + entry3.Text()
@@ -142,6 +151,7 @@ func makeControlsPage() ui.Control {
 			go pb.SetValue(0)
 			ui.MsgBoxError(mainwin, "Error", "Make sure all files are selected first.")
 		}
+
 	})
 
 	grid.Append(button,
