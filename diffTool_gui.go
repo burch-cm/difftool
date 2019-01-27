@@ -13,6 +13,11 @@ var (
 	version   string = "v0.6.2"
 )
 
+func writeDiff(c chan bool, x1, x2, x3 string, ic int) {
+	fd, _ := Difference(x1, x2, ic)
+	c <- fd.writeFile(x3)
+}
+
 func which(s []string, tgt string) (bool, int) {
 	for i := 0; i < len(s); i++ {
 		if s[i] == tgt {
@@ -59,11 +64,19 @@ func makeControlsPage() ui.Control {
 		if filename1 == "" {
 			filename1 = ""
 		}
-		wg.Add(1)
+		/*wg.Add(1)
 		go func() { entry1.SetText(filename1) }()
-		defer wg.Done()
-		colnames := getColNames(filename1)
-		updateColList(fileCols, colnames)
+		defer wg.Done()*/
+		entry1.SetText(filename1)
+		wg.Add(1)
+		go func() {
+			colnames := getColNames(filename1)
+			updateColList(fileCols, colnames)
+		}()
+		wg.Done()
+		wg.Wait()
+		/*colnames := getColNames(filename1)
+		updateColList(fileCols, colnames)*/
 	})
 
 	grid.Append(button,
@@ -83,8 +96,8 @@ func makeControlsPage() ui.Control {
 			filename2 = ""
 		}
 		entry2.SetText(filename2)
-		colnames := getColNames(filename2)
-		updateColList(fileCols, colnames)
+		// colnames := getColNames(filename2)
+		// updateColList(fileCols, colnames)
 	})
 
 	grid.Append(button,
@@ -128,31 +141,30 @@ func makeControlsPage() ui.Control {
 		true, ui.AlignFill, false, ui.AlignFill)
 
 	button = ui.NewButton("Start Comparison")
+
 	pb := ui.NewProgressBar()
 
+	c := make(chan bool)
+
 	button.OnClicked(func(*ui.Button) {
-		wg.Add(1)
-		go func() { pb.SetValue(-1) }()
-		outval := false
+		pb.SetValue(-1)
 		if (entry1.Text() == "") || (entry2.Text() == "") || (entry3.Text() == "") {
 			ui.MsgBoxError(mainwin, "File Select Error", "Please select input and output files first.")
 			return
 		}
-		fileDiff, _ := Difference(entry1.Text(), entry2.Text(), indexcol)
-		outval = fileDiff.writeFile(entry3.Text())
-		wg.Done()
-		wg.Add(1)
-		go func() { pb.SetValue(100) }()
-		defer wg.Done()
-		if outval == true {
+		/*fileDiff, _ := Difference(entry1.Text(), entry2.Text(), indexcol)
+		outval = fileDiff.writeFile(entry3.Text())*/
+		go writeDiff(c, entry1.Text(), entry2.Text(), entry3.Text(), indexcol)
+		outval := <-c
 
+		if outval == true {
+			pb.SetValue(100)
 			msg := "Complete! Wrote result to " + entry3.Text()
 			ui.MsgBox(mainwin, "Complete!", msg)
 		} else {
-			go pb.SetValue(0)
+			pb.SetValue(0)
 			ui.MsgBoxError(mainwin, "Error", "Make sure all files are selected first.")
 		}
-
 	})
 
 	grid.Append(button,
