@@ -9,7 +9,8 @@ import (
 var (
 	mainwin   *ui.Window
 	fileNames []string
-	indexcol  int = 6
+	indexcol  int    = 6
+	version   string = "v0.6.2"
 )
 
 func which(s []string, tgt string) (bool, int) {
@@ -172,7 +173,7 @@ func makeControlsPage() ui.Control {
 
 // build the iterface
 func setupUI() {
-	mainwin = ui.NewWindow("diffTool v0.6.1", 640, 480, true)
+	mainwin = ui.NewWindow("diffTool "+version, 640, 480, true)
 	mainwin.OnClosing(func(*ui.Window) bool {
 		ui.Quit()
 		return true

@@ -262,14 +262,3 @@ func (diff diffMap) writeFile(f string) bool {
 	}
 
 }
-
-/*func main() {
-	f1 := "C:/users/chris/Documents/GLT/working/AITS/AITS_Datadump_1_short.xlsx"
-	f2 := "C:/users/chris/Documents/GLT/working/AITS/AITS_Datadump_2_short.xlsx"
-	f1 := "C:/users/chris/Documents/GLT/working/AITS/AITS_Datadump_1023201.xlsx"
-	f2 := "C:/users/chris/Documents/GLT/working/AITS/AITS_Datadump_11132018.xlsx"
-	res := Difference(f1, f2, 6)
-
-	res.writeFile("./test/testfile_method.xlsx")
-	//writeFile(res, "./test/testfile.xlsx")
-}*/
