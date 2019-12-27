@@ -222,7 +222,7 @@ func (diff diffMap) writeFile(f string) bool {
 	for _, v := range diff {
 		if v["type"][0] == "added" {
 			oldrow := sheet.AddRow()
-			for _, j := range v["old"] {
+			for _, j := range v["new"] {
 				cell := oldrow.AddCell()
 				cell.Value = j
 				cell.SetStyle(style)
