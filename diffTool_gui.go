@@ -10,7 +10,7 @@ var (
 	mainwin   *ui.Window
 	fileNames []string
 	indexcol  int    = 6
-	version   string = "v0.6.2"
+	version   string = "v0.7.0"
 )
 
 func writeDiff(c chan bool, x1, x2, x3 string, ic int) {
