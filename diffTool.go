@@ -22,6 +22,7 @@ type rowMapKey struct {
 	different    []string
 }
 
+// Function Lower() conversts all values in a string slice to lower case
 func (r rowMap) Lower() {
 	for key, val := range r {
 		var lower []string
@@ -52,10 +53,12 @@ func (r rowMap) rowHash(key string) uint64 {
 	return sum
 }
 
+// converts to type String
 func conv2str(t interface{}) string {
 	return fmt.Sprint(t)
 }
 
+//
 func getColNames(xlfile string) []string {
 	mySlice, err := xlsx.FileToSliceNlines(xlfile, 1)
 	if err != nil {
@@ -85,6 +88,7 @@ func RowMap(xlfile string, indexpos int) (r rowMap, colnames []string) {
 	return myMap, colNames
 }
 
+// compare the keys between two files
 func CompKeys(m1, m2 rowMap) rowMapKey {
 	m1_key := mapset.NewSet()
 	m2_key := mapset.NewSet()
@@ -95,23 +99,19 @@ func CompKeys(m1, m2 rowMap) rowMapKey {
 	for key := range m2 {
 		m2_key.Add(key)
 	}
-	rem := m1_key.Difference(m2_key).ToSlice()
-	for _, i := range rem {
+	removed := m1_key.Difference(m2_key).ToSlice()
+	for _, i := range removed {
 		out.removed = append(out.removed, conv2str(i))
 	}
-	rem = m2_key.Difference(m1_key).ToSlice()
-	for _, i := range rem {
+	added := m2_key.Difference(m1_key).ToSlice()
+	for _, i := range added {
 		out.added = append(out.added, conv2str(i))
 	}
-	rem = m1_key.Intersect(m2_key).ToSlice()
-	for _, i := range rem {
+	same := m1_key.Intersect(m2_key).ToSlice()
+	for _, i := range same {
 		out.intersection = append(out.intersection, conv2str(i))
 	}
-	/*
-		out.removed = m1_key.Difference(m2_key).ToSlice()
-		out.added = m2_key.Difference(m1_key).ToSlice()
-		out.intersection = m1_key.Intersect(m2_key).ToSlice()
-	*/
+
 	return out
 }
 
