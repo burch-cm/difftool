@@ -14,7 +14,7 @@ import (
 type rowMap map[string][]string
 type diffMap map[string]map[string][]string
 
-// Type roeMapKey holds the set difference and intersection of the keys from two rowMaps
+// Type rowMapKey holds the set difference and intersection of the keys from two rowMaps
 type rowMapKey struct {
 	removed      []string
 	added        []string
